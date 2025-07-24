@@ -1,0 +1,89 @@
+<< Notation` (*Convenient to add the notation package*)
+Symbolize[NotationTemplateTag[Subscript[r, s]]] 
+Clear[\[GothicCapitalM], Metric, InvMetric, 
+CHFS, RMT, RT, RS, ET,ETT, r,\[Theta],\[Phi],t];
+\[GothicCapitalM] = {t,r,\[Theta],\[Phi]}; n = 4;
+f[r_]:= 1- ( 2 M r^2)/(r^3 + 2 M L^2)
+\[ScriptM][_u]:= \[ScriptM][u]
+SchMetric = {{-(1- (Subscript[r, s] / r)),0,0,0},
+               {0,(1 - (Subscript[r, s]  / r) )^(-1),0,0},
+               {0,0,r^(2) ,0}, {0,0,0, r^(2) Sin[\[Theta]]^2}};
+VaidyaMetric = {{1,1,0,0}, {1, 0 ,0,0},  {0,0,r^(2) ,0},
+                {0,0,0, r^(2) Sin[\[Theta]]^2}};
+HaywardMetric = {{- f[r],0,0,0}, {0, 1 / (f[r]),0,0},
+                {0,0,r^(2) ,0}, {0,0,0, r^(2) Sin[\[Theta]]^2}};   
+
+
+
+Metric = FullSimplify[SchMetric];
+InvMetric = FullSimplify[Inverse@Metric]; MatrixForm[Metric]
+CHFS = FullSimplify[Table[(1/2)*Sum[(InvMetric[[\[Lambda], \[Alpha]]])*
+       (D[Metric[[\[Mu], \[Alpha]]], \[GothicCapitalM][[\[Nu]]] ] +
+         D[Metric[[\[Nu], \[Alpha]]], \[GothicCapitalM][[\[Mu]]] ] - 
+         D[Metric[[\[Mu], \[Nu]]], \[GothicCapitalM][[\[Alpha]]] ]), {\[Alpha], 1, n}],
+{\[Lambda], 1, n}, {\[Mu], 1, n}, {\[Nu], 1, n}]];
+    RMT = FullSimplify[Table[D[CHFS[[\[Kappa], \[Lambda], \[Nu]]], \[GothicCapitalM][[\[Mu]]] ] - 
+     D[CHFS[[\[Kappa], \[Lambda], \[Mu]]], \[GothicCapitalM][[\[Nu]]] ] + 
+     Sum[CHFS[[\[Alpha], \[Lambda], \[Nu]]] CHFS[[\[Kappa], \[Mu], \[Alpha]]] - 
+       CHFS[[\[Alpha], \[Lambda], \[Mu]]] CHFS[[\[Kappa], \[Nu], \[Alpha]]],
+      {\[Alpha], 1, n}], {\[Kappa], 1, n}, {\[Lambda], 1, n}, {\[Mu], 1, n}, {\[Nu], 1, n}]];
+
+
+
+
+RT = FullSimplify[Table[Sum[RMT[[\[Alpha], \[Mu], \[Alpha], \[Nu]]], {\[Alpha], 1, n}], {\[Mu], 1, n}, {\[Nu], 1, n}]];
+(*Print the Einstein tensor components*)
+RS = FullSimplify[Sum[InvMetric[[\[Alpha], \[Beta]]] RT[[\[Alpha], \[Beta]]], {\[Alpha], 1, n}, {\[Beta], 1, n}]]
+RMTIndicesDown = Simplify[Table[
+Sum[Metric[[\[Kappa], \[Kappa]1]]*RMT[[\[Kappa]1, \[Lambda], \[Mu], \[Nu]]], {\[Kappa]1, 1, n}], {\[Kappa], 1, n}, {\[Lambda], 1, n}, 
+{\[Mu], 1, n}, {\[Nu], 1, n}]];
+RMTIndicesUp = Simplify[Table[
+Sum[Sum[Sum[InvMetric[[\[Lambda]1, \[Lambda]]]*InvMetric[[\[Mu]1, \[Mu]]]*InvMetric[[\[Nu]1, \[Nu]]]*
+        RMT[[\[Kappa], \[Lambda]1, \[Mu]1, \[Nu]1]], {\[Lambda]1, 1, n}], {\[Mu]1, 1, n}], {\[Nu]1, 1, n}], {\[Kappa], 1,  n}, {\[Lambda], 1, n}, {\[Mu], 1, n}, {\[Nu], 1, n}]];
+
+
+
+
+(*We'll print the Ricci tensor components*)
+
+ET = FullSimplify[RT - ((1/2) Metric  RS)]; 
+(*Print the trace of energy momentum tensor*)
+EMT = FullSimplify[RT - ((1/2)Metric  RS) / (8 \[Pi] G ) ]; 
+(*Print the trace of Einstein equation*)
+ETT = FullSimplify[Sum[ InvMetric[[\[Alpha], \[Beta]]] RT[[\[Alpha], \[Beta]]], {\[Alpha], 1, n}, {\[Beta], 1, n}]- (1/2) Sum[InvMetric[[\[Alpha], \[Beta]]] Metric[[\[Alpha], \[Beta]]],{\[Alpha], 1, n}, {\[Beta], 1, n} ] RS ] 
+
+KretschmannScalar = FullSimplify[Sum[
+   RMTIndicesDown[[\[Kappa], \[Lambda], \[Mu], \[Nu]]]*RMTIndicesUp[[\[Kappa], \[Lambda], \[Mu], \[Nu]]], {\[Kappa], 1, n}, {\[Lambda], 1, 
+    n}, {\[Mu], 1, n}, {\[Nu], 1, n}]]
+
+
+
+
+
+ListCHFS := Table[If[UnsameQ[CHFS[[\[Lambda], \[Mu], \[Nu]]],0],
+        {ToString[\[CapitalGamma][\[GothicCapitalM][[\[Lambda]]], \[GothicCapitalM][[\[Mu]]], \[GothicCapitalM][[\[Nu]]]]], 
+        CHFS[[\[Lambda], \[Mu], \[Nu]]]}], {\[Lambda], 1, n}, {\[Mu], 1, n}, {\[Nu], 1, \[Mu]}]
+TableForm[Partition[DeleteCases[Flatten[ListCHFS], Null], 2], 
+  TableSpacing -> {2, 2}] 
+
+ListRMT := Table[If[UnsameQ[RMT[[\[Kappa], \[Lambda], \[Mu], \[Nu]]], 0],
+         {ToString[R[\[GothicCapitalM][[\[Kappa]]], \[GothicCapitalM][[\[Lambda]]], \[GothicCapitalM][[\[Mu]]], \[GothicCapitalM][[\[Nu]]]]], 
+        RMT[[\[Kappa], \[Lambda], \[Mu], \[Nu]]]}] , {\[Kappa], 1, n}, {\[Lambda], 1, n}, {\[Mu], 1, 
+      n}, {\[Nu], 1, \[Mu] - 1}]
+TableForm[Partition[DeleteCases[Flatten[ListRMT], Null], 2], 
+  TableSpacing -> {2, 2}]
+
+
+
+
+
+ListRT := Table[If[UnsameQ[RT[[\[Mu], \[Nu]]], 0], {ToString[R[\[GothicCapitalM][[\[Mu]]], \[GothicCapitalM][[\[Nu]]]]], 
+        RT[[\[Mu], \[Nu]]]}] , {\[Mu], 1, n}, {\[Nu], 1, \[Mu]}]
+TableForm[Partition[DeleteCases[Flatten[ListRT], Null], 2], 
+  TableSpacing -> {2, 2}]
+
+  ListET := FullSimplify[Table[If[UnsameQ[ET[[\[Mu], \[Nu]]], 0], {ToString[G[\[GothicCapitalM][[\[Mu]]], \[GothicCapitalM][[\[Nu]]]]], ET[[\[Mu], \[Nu]]]}], {\[Mu], 1, n}, {\[Nu], 1, \[Mu]}]]
+TableForm[Partition[DeleteCases[Flatten[ListET], Null], 2], TableSpacing -> {2, 2}]
+
+ListEMT := FullSimplify[Table[If[UnsameQ[EMT[[\[Mu], \[Nu]]], 0], {ToString[T[\[GothicCapitalM][[\[Mu]]], \[GothicCapitalM][[\[Nu]]]]], EMT[[\[Mu], \[Nu]]]}], {\[Mu], 1, n}, {\[Nu], 1, \[Mu]}]]
+TableForm[Partition[DeleteCases[Flatten[ListEMT], Null], 2], TableSpacing -> {2, 2}]

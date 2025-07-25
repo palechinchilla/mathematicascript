@@ -8,11 +8,6 @@ f[r_]:= 1- ( 2 M r^2)/(r^3 + 2 M L^2)
 SchMetric = {{-(1- (Subscript[r, s] / r)),0,0,0},
                {0,(1 - (Subscript[r, s]  / r) )^(-1),0,0},
                {0,0,r^(2) ,0}, {0,0,0, r^(2) Sin[\[Theta]]^2}};
-VaidyaMetric = {{1,1,0,0}, {1, 0 ,0,0},  {0,0,r^(2) ,0},
-                {0,0,0, r^(2) Sin[\[Theta]]^2}};
-HaywardMetric = {{- f[r],0,0,0}, {0, 1 / (f[r]),0,0},
-                {0,0,r^(2) ,0}, {0,0,0, r^(2) Sin[\[Theta]]^2}};   
-
 
 
 Metric = FullSimplify[SchMetric];
